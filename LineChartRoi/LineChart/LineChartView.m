@@ -334,12 +334,42 @@
         CGFloat xPerWidth = self.drawContentWidth / [self.anchorDataAry count];
         CGFloat xSectionPointCount = [[self.anchorDataAry objectAtIndex:i] count];
         CGFloat xPerPosWidth = xPerWidth/ xSectionPointCount;
+        CGFloat xDrawPos = [[self.xAxisPosAry objectAtIndex:i] floatValue];
+        
+        if (xSectionPointCount == 0) {
+            
+            CGFloat xPos = [[self.xAxisPosAry objectAtIndex:i] floatValue];
+            
+            y1AnchorPoint.x = xPos;
+            y1AnchorPoint.y = self.leftLineOriginPoint.y;
+
+            y2AnchorPoint.x = xPos;
+            
+            CGPoint y1NextAnchorPoint = y1AnchorPoint;
+            CGPoint y2NextAnchorPoint = y2AnchorPoint;
+            
+            if ((i + 1) < [self.anchorDataAry count]) {
+                
+                CGFloat xPos = [[self.xAxisPosAry objectAtIndex:i + 1] floatValue];
+                
+                y1NextAnchorPoint.x = xPos;
+                y1NextAnchorPoint.y = y1AnchorPoint.y;
+                
+                y2NextAnchorPoint.x = xPos;
+            }
+            
+            [self.y1AnchorAry addObject:[NSValue valueWithCGPoint:y1AnchorPoint]];
+            [self.y1AnchorAry addObject:[NSValue valueWithCGPoint:y1NextAnchorPoint]];
+            
+            [self.y2AnchorAry addObject:[NSValue valueWithCGPoint:y2AnchorPoint]];
+            [self.y2AnchorAry addObject:[NSValue valueWithCGPoint:y2NextAnchorPoint]];
+        }
         
         for (int j = 0; j != xSectionPointCount; j++) {
             
             AnchorItem *item = [dataAry objectAtIndex:j];
             
-            CGFloat startPos =  xPerPosWidth * j + self.originPoint.x + xPerWidth * i;
+            CGFloat startPos = xDrawPos + xPerPosWidth * j;
             
             y1AnchorPoint.x = startPos;
             
@@ -417,7 +447,14 @@
         CGPoint y1EndAnchorPoint = [[self.y1AnchorAry objectAtIndex:i + 1] CGPointValue];
         
         //! 畫Y1連接線
-        if (y1StartAnchorPoint.y >= self.leftLineOriginPoint.y && y1EndAnchorPoint.y >= self.leftLineOriginPoint.y) {
+        if(y1StartAnchorPoint.y == self.leftLineOriginPoint.y && y1EndAnchorPoint.y == self.leftLineOriginPoint.y) {
+            
+            [ChartCommon drawLine:context
+                       startPoint:y1StartAnchorPoint
+                         endPoint:y1EndAnchorPoint
+                        lineColor:self.xAxisLineColor width:1.0f];
+        }
+        else if (y1StartAnchorPoint.y >= self.leftLineOriginPoint.y && y1EndAnchorPoint.y >= self.leftLineOriginPoint.y) {
             
             [ChartCommon drawLine:context
                        startPoint:y1StartAnchorPoint
@@ -472,18 +509,20 @@
         CGPoint y2EndAnchorPoint = [[self.y2AnchorAry objectAtIndex:i + 1] CGPointValue];
         CGPoint y2CornerPoint = CGPointMake(y2EndAnchorPoint.x, y2StartAnchorPoint.y);
         
-        [ChartCommon drawLine:context
-                   startPoint:y2StartAnchorPoint
-                     endPoint:y2CornerPoint
-                    lineColor:self.y2LineColor width:1.0f];
+//        if(y2StartAnchorPoint.y != self.originPoint.y && y2EndAnchorPoint.y != self.originPoint.y) {
         
-        [ChartCommon drawLine:context
-                   startPoint:y2CornerPoint
-                     endPoint:y2EndAnchorPoint
-                    lineColor:self.y2LineColor width:1.0f];
-        
-    }
+            [ChartCommon drawLine:context
+                       startPoint:y2StartAnchorPoint
+                         endPoint:y2CornerPoint
+                        lineColor:self.y2LineColor width:1.0f];
+            
+            [ChartCommon drawLine:context
+                       startPoint:y2CornerPoint
+                         endPoint:y2EndAnchorPoint
+                        lineColor:self.y2LineColor width:1.0f];
 
+//        }
+    }
 }
 
 #pragma mark - Custom methods
@@ -559,10 +598,6 @@
     
     if ([self.anchorDataAry count] > 0) {
         
-        AnchorItem *item = [[self.anchorDataAry objectAtIndex:0] objectAtIndex:0];
-        self.y1MinValue = item.y1Value; self.y1MaxValue = item.y1Value;
-        self.y2MinValue = item.y2Value; self.y2MaxValue = item.y2Value;
-        
         for (int i = 0; i < [self.anchorDataAry count]; i++) {
             
             NSArray *dataAry = [self.anchorDataAry objectAtIndex:i];
@@ -606,7 +641,7 @@
         }
         else {
         
-            NSString *sY1 = [NSString stringWithFormat:@"%d", y1AxisMax];
+            NSString *sY1 = [NSString stringWithFormat:@"%zd", y1AxisMax];
             
             NSInteger count = [sY1 length];
             
@@ -634,7 +669,7 @@
 
         NSInteger y2AxisMax = (NSInteger)y2AxisTempMax;
         
-        NSString *sY2 = [NSString stringWithFormat:@"%d", y2AxisMax];
+        NSString *sY2 = [NSString stringWithFormat:@"%zd", y2AxisMax];
         
         NSInteger count = [sY2 length];
         
@@ -659,9 +694,9 @@
         
         for (int i = 0; i < self.xDrawLineCount + 1; i++) {
         
-            CGFloat width = i * xPerWidth + self.originPoint.x;
+            CGFloat pos = i * xPerWidth + self.originPoint.x;
             
-            [self.xAxisPosAry addObject:@(width)];
+            [self.xAxisPosAry addObject:@(pos)];
         }
         
         //! y軸
