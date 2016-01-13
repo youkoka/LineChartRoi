@@ -71,10 +71,10 @@ typedef NS_ENUM(NSInteger, ZoomScaleAxis)
 //! 目前點擊點
 @property(readonly) CGPoint tapLocation;
 
-//! 左劃線起始原點
+//! 右劃線起始原點
 @property (nonatomic, assign) CGPoint rightLineOriginPoint;
 
-//! 右劃線起始原點
+//! 左劃線起始原點
 @property (nonatomic, assign) CGPoint leftLineOriginPoint;
 
 //! 資料
@@ -86,7 +86,7 @@ typedef NS_ENUM(NSInteger, ZoomScaleAxis)
 //! Y 軸上 X 軸(虛)線數量(數量含軸線)
 @property NSInteger xDrawLineCount;
 
-//! X 軸上 Y 軸(虛)線數量(數量含軸線)
+//! X 軸上 Y 軸(虛)線數量(數量含軸線, 不含原點)
 @property NSInteger yDrawLineCount;
 
 //! y軸最大/小值
@@ -107,9 +107,6 @@ typedef NS_ENUM(NSInteger, ZoomScaleAxis)
 //! 軸線間隔值
 @property (nonatomic, strong) NSMutableArray *xAxisPosAry;
 @property (nonatomic, strong) NSMutableArray *yAxiaPosAry;
-
-//! 依據現有畫面大小更新點的資訊
--(void) reloadView;
 
 //! 依據畫面大小更新相關點的資訊
 -(void) updateViewWithFrame:(CGRect)frame;

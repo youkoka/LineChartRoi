@@ -34,8 +34,6 @@
 
 -(id) initWithFrame:(CGRect)frame;
 
--(void) setDataSource:(NSArray *) anchorDataAry;
-
 -(void) resetViewWithFrame:(CGRect) frame;
 
 @end

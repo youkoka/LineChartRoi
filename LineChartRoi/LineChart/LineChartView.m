@@ -113,9 +113,7 @@
     return self;
 }
 
--(void) setDataSource:(NSArray *) anchorDataAry
-{
-    self.anchorDataAry = anchorDataAry;
+-(void) reloadView {
     
     [self resetViewWithFrame:self.frame];
 }
@@ -164,14 +162,6 @@
         }
         
         [self.contentLabelSaveAry removeAllObjects];
-    }
-
-    [self.y1AnchorAry removeAllObjects];
-    [self.y2AnchorAry removeAllObjects];
-    
-    if ([self.anchorDataAry count] == 0) {
-        
-        return;
     }
     
     //! 畫虛線
@@ -320,9 +310,16 @@
     
 #pragma mark 畫 Y1, Y2連接線
     
-    CGPoint y1AnchorPoint = self.originPoint;
+    [self.y1AnchorAry removeAllObjects];
+    [self.y2AnchorAry removeAllObjects];
+    
+    CGPoint y1AnchorPoint = self.leftLineOriginPoint;
     CGPoint y2AnchorPoint = self.originPoint;
     
+    //! 新增畫圖原點
+    [self.y1AnchorAry addObject:[NSValue valueWithCGPoint:y1AnchorPoint]];
+    [self.y2AnchorAry addObject:[NSValue valueWithCGPoint:y2AnchorPoint]];
+
     //! 最大/小標籤值只顯示一次
     BOOL isShowMaxLabel = NO;
     BOOL isShowMinLabel = NO;
@@ -336,14 +333,14 @@
         CGFloat xPerPosWidth = xPerWidth/ xSectionPointCount;
         CGFloat xDrawPos = [[self.xAxisPosAry objectAtIndex:i] floatValue];
         
+        //! 區間資料是空的時, 須將連接線回到原點
+        //! 這裏會將空區間轉換為2筆座標點
         if (xSectionPointCount == 0) {
             
-            CGFloat xPos = [[self.xAxisPosAry objectAtIndex:i] floatValue];
-            
-            y1AnchorPoint.x = xPos;
+            y1AnchorPoint.x = xDrawPos;
             y1AnchorPoint.y = self.leftLineOriginPoint.y;
 
-            y2AnchorPoint.x = xPos;
+            y2AnchorPoint.x = xDrawPos;
             
             CGPoint y1NextAnchorPoint = y1AnchorPoint;
             CGPoint y2NextAnchorPoint = y2AnchorPoint;
@@ -365,11 +362,11 @@
             [self.y2AnchorAry addObject:[NSValue valueWithCGPoint:y2NextAnchorPoint]];
         }
         
-        for (int j = 0; j != xSectionPointCount; j++) {
+        for (int j = 0; j < xSectionPointCount; j++) {
             
             AnchorItem *item = [dataAry objectAtIndex:j];
             
-            CGFloat startPos = xDrawPos + xPerPosWidth * j;
+            CGFloat startPos = xDrawPos + xPerPosWidth * (j + 1);
             
             y1AnchorPoint.x = startPos;
             
@@ -417,10 +414,11 @@
             }
         }
     }
+    
     /*
-     for (int i = 0; i != [self.y2AnchorAry count]; i++) {
+     for (int i = 0; i != [self.y1AnchorAry count]; i++) {
      
-     CGPoint startAnchorPoint = [[self.y2AnchorAry objectAtIndex:i] CGPointValue];
+     CGPoint startAnchorPoint = [[self.y1AnchorAry objectAtIndex:i] CGPointValue];
      AnchorView *anchor = nil;
      
      #if !__has_feature(objc_arc)
@@ -437,11 +435,11 @@
      [self addSubview:anchor];
      }
      }
-     */
+    */
     CGFloat yPattern[1]= {1};
     CGContextSetLineDash(context, 0.0, yPattern, 0);
     
-    for (int i = 0; i != [self.y1AnchorAry count] - 1; i++) {
+    for (int i = 0; i < [self.y1AnchorAry count] - 1; i++) {
         
         CGPoint y1StartAnchorPoint = [[self.y1AnchorAry objectAtIndex:i] CGPointValue];
         CGPoint y1EndAnchorPoint = [[self.y1AnchorAry objectAtIndex:i + 1] CGPointValue];
@@ -509,19 +507,15 @@
         CGPoint y2EndAnchorPoint = [[self.y2AnchorAry objectAtIndex:i + 1] CGPointValue];
         CGPoint y2CornerPoint = CGPointMake(y2EndAnchorPoint.x, y2StartAnchorPoint.y);
         
-//        if(y2StartAnchorPoint.y != self.originPoint.y && y2EndAnchorPoint.y != self.originPoint.y) {
+        [ChartCommon drawLine:context
+                   startPoint:y2StartAnchorPoint
+                     endPoint:y2CornerPoint
+                    lineColor:self.y2LineColor width:1.0f];
         
-            [ChartCommon drawLine:context
-                       startPoint:y2StartAnchorPoint
-                         endPoint:y2CornerPoint
-                        lineColor:self.y2LineColor width:1.0f];
-            
-            [ChartCommon drawLine:context
-                       startPoint:y2CornerPoint
-                         endPoint:y2EndAnchorPoint
-                        lineColor:self.y2LineColor width:1.0f];
-
-//        }
+        [ChartCommon drawLine:context
+                   startPoint:y2CornerPoint
+                     endPoint:y2EndAnchorPoint
+                    lineColor:self.y2LineColor width:1.0f];
     }
 }
 
@@ -700,8 +694,6 @@
         }
         
         //! y軸
-        self.yDrawLineCount = 2;
-    
         CGFloat ySectionHeight = self.leftLineOriginPoint.y - self.originPoint.y;
         
         CGFloat yPerHeight = ySectionHeight / self.yDrawLineCount;
@@ -727,6 +719,24 @@
             
             [self.yAxisValueAry addObject:@(yLabel)];
         }
+    }
+    else {
+        
+        //! 計算軸線數量
+        //! x軸
+        CGFloat xPerWidth = self.drawContentWidth / self.xDrawLineCount;
+        
+        for (int i = 0; i < self.xDrawLineCount + 1; i++) {
+            
+            CGFloat pos = i * xPerWidth + self.originPoint.x;
+            
+            [self.xAxisPosAry addObject:@(pos)];
+        }
+        
+        //! y軸
+        [self.yAxiaPosAry addObject:@(self.leftLineOriginPoint.y)];
+        
+        [self.yAxisValueAry addObject:@(0)];
     }
 }
 

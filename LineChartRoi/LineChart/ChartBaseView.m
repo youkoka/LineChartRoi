@@ -50,15 +50,13 @@
         self.y1MinValue = self.y1MaxValue = self.y2MinValue = self.y2MaxValue = 0.0f;
         
         self.isShowY1MinMaxValue = YES;
+        
+        //! X/Y軸預設數
+        self.xDrawLineCount = 6;
+        self.yDrawLineCount = 2;
     }
     
     return self;
-}
-
-
-//! 依據現有畫面大小更新點的資訊
--(void) reloadView {
-    
 }
 
 //! 依據畫面大小更新相關點的資訊
@@ -77,8 +75,8 @@
     self.drawContentWidth = self.drawOriginContentWidth;
     self.drawContentHeight = self.drawOriginContentHeight;
     
-    self.leftLineOriginPoint = CGPointMake(_rightBottomPoint.x, (_rightTopPoint.y - _rightBottomPoint.y) / 2 + _originPoint.y);
-    self.rightLineOriginPoint = CGPointMake(_originPoint.x, (_rightTopPoint.y - _rightBottomPoint.y) / 2 + _originPoint.y);
+    self.rightLineOriginPoint = CGPointMake(_rightBottomPoint.x, (_rightTopPoint.y - _rightBottomPoint.y) / 2 + _originPoint.y);
+    self.leftLineOriginPoint = CGPointMake(_originPoint.x, (_rightTopPoint.y - _rightBottomPoint.y) / 2 + _originPoint.y);
 
     [self setNeedsDisplay];
 }
