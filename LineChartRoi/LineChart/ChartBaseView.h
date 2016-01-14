@@ -108,6 +108,9 @@ typedef NS_ENUM(NSInteger, ZoomScaleAxis)
 @property (nonatomic, strong) NSMutableArray *xAxisPosAry;
 @property (nonatomic, strong) NSMutableArray *yAxiaPosAry;
 
+//! y2 畫面比例, default = 0.25
+@property (nonatomic, assign) CGFloat y2DrawRatio;
+
 //! 依據畫面大小更新相關點的資訊
 -(void) updateViewWithFrame:(CGRect)frame;
 

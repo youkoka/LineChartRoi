@@ -385,7 +385,7 @@
             //! 計算y2's y軸座標點
             y2AnchorPoint.x = startPos;
             
-            y2AnchorPoint.y = self.originPoint.y + (item.y2Value / self.y2AxisMax) * (self.leftTopPoint.y - self.originPoint.y) / 3;
+            y2AnchorPoint.y = self.originPoint.y + (item.y2Value / self.y2AxisMax) * ((self.leftTopPoint.y - self.originPoint.y) * self.y2DrawRatio);
             
             [self.y2AnchorAry addObject:[NSValue valueWithCGPoint:y2AnchorPoint]];
             
@@ -667,19 +667,29 @@
         
         NSInteger count = [sY2 length];
         
-        if (count > 0) {
+        if (count == 1) {
+            
+            /*
+             y2 值為個位數時, 強制給最大值
+             避免圖畫起來比例太理譜
+             */
+            self.y2AxisMax = 10;
+            self.y2AxisMin = 0;
+        }
+        else if (count > 1) {
             
             NSMutableString *value = [NSMutableString stringWithString:@"1"];
             
-            for (int i = 0; i != count; i++) {
+            for (int i = 0; i != count - 1; i++) {
                 
                 [value appendString:@"0"];
             }
             
+            //! 取到個位數 + 1, 算最大值
             self.y2AxisMax = ([sY2 integerValue] / [value integerValue] + 1) * [value integerValue];
-            self.y2AxisMin = -([sY2 integerValue] / [value integerValue] + 1) * [value integerValue];
+            self.y2AxisMin = 0;
         }
-
+        
         //! 計算軸線數量
         //! x軸
         self.xDrawLineCount = [self.anchorDataAry count];

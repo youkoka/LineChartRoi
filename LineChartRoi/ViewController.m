@@ -47,28 +47,27 @@
     
     [labelAry addObject:@"0"];
     
-    for (int j = 0; j != 2; j++) {
+    for (int j = 0; j != 12; j++) {
         
         NSMutableArray *stepAry = [NSMutableArray array];
         
-//        if (j != 1 && j != 1 && j != 3) {
+        if (j != 0 && j != 6 && j != 11) {
         
-            for (int i = 0; i != 2; i++) {
+            for (int i = 0; i != 5; i++) {
                 
                 AnchorItem *item = [[[AnchorItem alloc] init] autorelease];
                 
                 item.y1Value = 0.5 - ((rand() % 1000) * 0.001);
-                item.y2Value = (rand() % 100);
+                item.y2Value = (rand() % 20000 + 1);
                 
                 [stepAry addObject:item];
             }
-//        }
+        }
         
         [self.anchorDataAry addObject:stepAry];
         
-        [labelAry addObject:[NSString stringWithFormat:@"%zd", j]];
+//        [labelAry addObject:[NSString stringWithFormat:@"%zd", j]];
         
-        /*
         if (j % 2 == 0) {
         
             [labelAry addObject:[NSString stringWithFormat:@"01/%zd", j + 1]];
@@ -77,7 +76,6 @@
             
             [labelAry addObject:@""];
         }
-         */
     }
 
     CGRect rect = CGRectMake(5, 40,
@@ -97,7 +95,8 @@
     self.lineChartView.yTextColor = [UIColor whiteColor];
     self.lineChartView.y1LineColorLower = [UIColor greenColor];
     self.lineChartView.y1LineColorUpper = [UIColor redColor];
-    self.lineChartView.y2LineColor = [UIColor blueColor];
+    self.lineChartView.y2LineColor = [UIColor colorWithRed:12/255.0 green:139/255.0 blue:207/255.0 alpha:1];;
+    self.lineChartView.y2DrawRatio = 0.25;
     self.lineChartView.xLabelAry = labelAry;
     self.lineChartView.anchorDataAry = self.anchorDataAry;
     [self.view addSubview:self.lineChartView];

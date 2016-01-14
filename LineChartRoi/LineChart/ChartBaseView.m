@@ -47,7 +47,10 @@
         
         self.y1AxisMin = self.y1AxisMax = self.y2AxisMin = self.y2AxisMax = 0.0f;
         
-        self.y1MinValue = self.y1MaxValue = self.y2MinValue = self.y2MaxValue = 0.0f;
+        self.y1MinValue = self.y2MinValue = CGFLOAT_MAX;
+        self.y1MaxValue = self.y2MaxValue = -CGFLOAT_MAX;
+        
+        self.y2DrawRatio = 0.25f;
         
         self.isShowY1MinMaxValue = YES;
         
