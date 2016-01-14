@@ -96,10 +96,9 @@
     self.lineChartView.y1LineColorLower = [UIColor greenColor];
     self.lineChartView.y1LineColorUpper = [UIColor redColor];
     self.lineChartView.y2LineColor = [UIColor colorWithRed:12/255.0 green:139/255.0 blue:207/255.0 alpha:1];;
-    self.lineChartView.y2DrawRatio = 0.25;
     self.lineChartView.xLabelAry = labelAry;
     self.lineChartView.anchorDataAry = self.anchorDataAry;
-    [self.view addSubview:self.lineChartView];
+    [self.view addSubview:self.lineChartView];//
 }
 
 -(BOOL) shouldAutorotate
