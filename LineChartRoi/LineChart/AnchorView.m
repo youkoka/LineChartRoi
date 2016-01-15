@@ -18,12 +18,24 @@
 
 @implementation AnchorItem
 
+#if !__has_feature(objc_arc)
+
+-(void) dealloc
+{
+    OBJC_RELEASE(self.xDateLabel);
+    
+    [super dealloc];
+}
+
+#endif
+
 -(instancetype) init {
     
     if ( self = [super init]) {
         
         self.y1Value = 0.0f;
         self.y2Value = 0.0f;
+        self.xDateLabel = @"";
     }
     
     return self;

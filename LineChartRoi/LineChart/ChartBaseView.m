@@ -14,8 +14,6 @@
 
 -(void) dealloc
 {
-    OBJC_RELEASE(self.anchorDataAry);
-    OBJC_RELEASE(self.xLabelAry);
     OBJC_RELEASE(self.xAxisPosAry);
     OBJC_RELEASE(self.yAxiaPosAry);
     
@@ -38,9 +36,6 @@
         self.drawLineTypeOfY = LineDrawTypeDashLine;
         
         self.backgroundColor = [UIColor clearColor];
-        
-        self.anchorDataAry = [NSArray array];
-        self.xLabelAry = [NSMutableArray array];
         
         self.xAxisPosAry = [NSMutableArray array];
         self.yAxiaPosAry = [NSMutableArray array];

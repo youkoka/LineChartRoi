@@ -77,12 +77,6 @@ typedef NS_ENUM(NSInteger, ZoomScaleAxis)
 //! 左劃線起始原點
 @property (nonatomic, assign) CGPoint leftLineOriginPoint;
 
-//! 資料
-@property (nonatomic, strong) NSArray *anchorDataAry;
-
-//! x軸顯示文字
-@property (nonatomic, strong) NSMutableArray *xLabelAry;
-
 //! Y 軸上 X 軸(虛)線數量(數量含軸線)
 @property NSInteger xDrawLineCount;
 

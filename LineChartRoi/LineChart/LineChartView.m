@@ -27,9 +27,15 @@
 @end
 @interface LineChartView()
 
+//! 資料
+@property (nonatomic, strong) NSMutableArray *anchorDataAry;
+
 //! 點陣列
 @property (nonatomic, strong) NSMutableArray *y1AnchorAry;
 @property (nonatomic, strong) NSMutableArray *y2AnchorAry;
+
+//! x軸顯示文字
+@property (nonatomic, strong) NSMutableArray *xAxisLabelAry;
 
 //! 儲存Y軸標籤值
 @property (nonatomic, strong) NSMutableArray *yAxisValueAry;
@@ -59,7 +65,7 @@
     OBJC_RELEASE(self.xLabelSaveAry);
     OBJC_RELEASE(self.yLabelSaveAry);
     
-    OBJC_RELEASE(self.xLabelAry);
+    OBJC_RELEASE(self.xAxisLabelAry);
     OBJC_RELEASE(self.yAxisValueAry);
     
     OBJC_RELEASE(self.xLineColor);
@@ -78,6 +84,10 @@
     OBJC_RELEASE(self.y1AnchorAry);
     OBJC_RELEASE(self.y2AnchorAry);
     
+    OBJC_RELEASE(self.dataSourceAry);
+    OBJC_RELEASE(self.anchorDataAry);
+    OBJC_RELEASE(self.dateCharSeperateAry);
+    
     [super dealloc];
 }
 #endif
@@ -90,7 +100,7 @@
         self.yLabelSaveAry = [NSMutableArray array];
         self.contentLabelSaveAry = [NSMutableArray array];
         
-        self.xLabelAry = [NSMutableArray array];
+        self.xAxisLabelAry = [NSMutableArray array];
         self.yAxisValueAry = [NSMutableArray array];
         
         self.xLineColor = self.xAxisLineColor = [UIColor whiteColor];
@@ -105,7 +115,12 @@
         self.y1AnchorAry = [NSMutableArray array];
         self.y2AnchorAry = [NSMutableArray array];
         
+        self.dataSourceAry = [NSMutableArray array];
+        self.anchorDataAry = [NSMutableArray array];
+        
         self.backgroundColor = [UIColor blackColor];
+        
+        self.dateCharSeperateAry = [NSMutableArray arrayWithObjects:@"/", @"-", nil];
         
         [self updateViewWithFrame:frame];
     }
@@ -125,6 +140,87 @@
     [self buildAxisStepByDataSource];
 }
 
+#pragma Setter/Getter method
+
+//! 這裏做資料分類
+-(void) setDataSourceAry:(NSMutableArray *)dataSourceAry {
+
+    _dataSourceAry = dataSourceAry;
+    
+    if (_dataSourceAry != nil) {
+        
+        if ([_dataSourceAry count] > 0) {
+            
+            NSObject *obj = [_dataSourceAry objectAtIndex:0];
+            if ([obj isKindOfClass:[AnchorItem class]]) {
+            
+                //! 先排序
+                NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"xDateLabel" ascending:YES];
+                [_dataSourceAry sortUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+                [sortDescriptor release];
+                
+                AnchorItem *startAnchorItem = [_dataSourceAry objectAtIndex:0];
+                
+                NSString *startDate = startAnchorItem.xDateLabel;
+                
+                for (NSString *seperate in self.dateCharSeperateAry) {
+                    
+                    startDate = [startDate stringByReplacingOccurrencesOfString:seperate withString:@""];
+                }
+
+                //! 固定日期格式, ex : 2015/12/31
+                if ([startDate length] == 8) {
+                    
+                    NSString *sYear = [startDate substringWithRange:NSMakeRange(0, 4)];
+                    NSString *sMonth = [startDate substringWithRange:NSMakeRange(4, 2)];
+                    
+                    NSInteger nYear = [sYear integerValue];
+                    NSInteger nMonth = [sMonth integerValue];
+
+                    NSInteger perMonthSection = 12 / self.xDrawLineCount;
+                    
+                    NSInteger count = 0;
+                    
+                    for (int i = 0; i != self.xDrawLineCount; i++) {
+                    
+                        NSString *startDate = [NSString stringWithFormat:@"%d/%02d/%@", nYear, nMonth, @"01"];
+                        
+                        if ((nMonth + perMonthSection) / 12 == 1) {
+                        
+                            [self.xAxisLabelAry addObject:[NSString stringWithFormat:@"%d/%02d", nYear, nMonth]];
+                        }
+                        else {
+                            
+                            [self.xAxisLabelAry addObject:[NSString stringWithFormat:@"%02d", nMonth]];
+                        }
+                        
+                        nMonth += perMonthSection;
+                        
+                        if (nMonth / 12 == 1) {
+                            
+                            nYear += 1;
+                            
+                            nMonth %= 12;
+                        }
+                        
+                        NSString *endDate = [NSString stringWithFormat:@"%d/%02d/%@", nYear, nMonth, @"01"];
+                        
+                        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(xDateLabel >= %@) AND (xDateLabel < %@)", startDate, endDate];
+                        NSArray *arrayForTheSectionDay = [_dataSourceAry  filteredArrayUsingPredicate: predicate];
+                        
+                        [self.anchorDataAry addObject:arrayForTheSectionDay];
+                        
+                        count = [arrayForTheSectionDay count];
+                        
+                        NSLog(@"%d", count);
+                    }
+                }
+            }
+        }
+    }
+}
+
+#pragma Draw view
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
 - (void)drawRect:(CGRect)rect {
@@ -184,9 +280,9 @@
         CGFloat xPosition = [[self.xAxisPosAry objectAtIndex:i] floatValue];
         
         //! 範圍區塊內才畫
-        if (xPosition > self.originPoint.x && fabs(xPosition - self.originPoint.x) <= self.frame.size.width && i < [self.xLabelAry count]) {
+        if (xPosition > self.originPoint.x && fabs(xPosition - self.originPoint.x) <= self.frame.size.width && i < [self.xAxisLabelAry count]) {
             
-            NSString *valXStr = [self.xLabelAry objectAtIndex:i];
+            NSString *valXStr = [self.xAxisLabelAry objectAtIndex:i];
             
             if(![valXStr isKindOfClass:[NSNull class]]) {
                 
@@ -204,13 +300,13 @@
         }
         
         //! 顯示文字
-        if (i < [self.xLabelAry count]) {
+        if (i < [self.xAxisLabelAry count]) {
             
-            NSString *valXStr = [self.xLabelAry objectAtIndex:i];
+            NSString *valXStr = [self.xAxisLabelAry objectAtIndex:i];
             UIFont *xFont = [UIFont fontWithName:@"Helvetica" size:12];
             CGSize xValSize = [valXStr sizeWithFont:xFont];
             
-            CGFloat lbX_PosX = xPosition;
+            CGFloat lbX_PosX = xPosition - xValSize.width / 2;
             CGFloat lbX_PosY = self.originPoint.y - 15;
             
             TextLabel *lbXVal = [[TextLabel alloc] initWithFrame:CGRectMake(lbX_PosX, lbX_PosY, xValSize.width, xValSize.height)];

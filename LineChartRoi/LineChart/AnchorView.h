@@ -17,8 +17,11 @@
 
 @interface AnchorItem : NSObject
 
-@property CGFloat y1Value;
-@property CGFloat y2Value;
+@property (nonatomic, assign) CGFloat y1Value;
+@property (nonatomic, assign) CGFloat y2Value;
+
+//! 固定日期格式, ex : 2015/12/31
+@property (nonatomic, strong) NSString *xDateLabel;
 
 @end
 

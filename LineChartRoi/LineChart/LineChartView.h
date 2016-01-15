@@ -32,6 +32,12 @@
 
 @property (nonatomic, strong) UIColor *y2LineColor;
 
+//! 切分日期字元, default : "/" and "-"
+@property (nonatomic, strong) NSMutableArray *dateCharSeperateAry;
+
+//! 資料
+@property (nonatomic, strong) NSMutableArray *dataSourceAry;
+
 -(id) initWithFrame:(CGRect)frame;
 
 -(void) resetViewWithFrame:(CGRect) frame;
